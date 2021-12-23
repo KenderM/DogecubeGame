@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="http://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <title>DogeCubeGame</title>
 </head>
 <body>
@@ -59,25 +59,19 @@
     
         function preload ()
         {
-            this.load.setBaseURL('https://github.com/KenderM/DogecubeGame/blob/main/images/');
-            this.load.image('space', './space.jpg');
-    
-            this.load.image('bg1', './back.png');
-            this.load.image('bg2', './mid.png');
-            this.load.image('bg3', './front.png');
-    
-            this.load.image('sky', './Sky.png');
-            this.load.image('Cloud_1', './Cloud_1.png');
-            this.load.image('Cloud_2', './Cloud_2.png');
-    
-            this.load.image('flecha', './flecha.png');
-      
-            this.load.image('line', './line.jpg');
-    
-            this.load.image('fuel', './fuel.png');
-    
-            this.load.image('dogecube', './doge3.png');
-            this.load.image('doge3powah', './doge3powah.png');
+            //this.load.setBaseURL('/images/');
+            this.load.image('space', 'space.jpg');    
+            this.load.image('bg1', 'back.png');
+            this.load.image('bg2', 'mid.png');
+            this.load.image('bg3', 'front.png');    
+            this.load.image('sky', 'Sky.png');
+            this.load.image('Cloud_1', 'Cloud_1.png');
+            this.load.image('Cloud_2', 'Cloud_2.png');   
+            this.load.image('flecha', 'flecha.png');      
+            this.load.image('line', 'line.jpg');    
+            this.load.image('fuel', 'fuel.png');    
+            this.load.image('dogecube', 'doge3.png');
+            this.load.image('doge3powah', 'doge3powah.png');
     
     
         }
