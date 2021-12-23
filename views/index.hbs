@@ -1,0 +1,241 @@
+<script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+<style>
+body {
+    margin: 0px;
+}
+
+</style>
+ <script>
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1080,
+        height: 1920,  
+        physics: {
+            default: 'arcade',
+            arcade: { debug: true }
+        },      
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    let VELOCITY = 10
+    let VelocityX = 20
+    var game = new Phaser.Game(config);
+    var doge3;
+    var fire;
+    var space;
+    var tween
+    var sky;
+
+    var flecha;
+    var moveRight = false
+    var moveLeft = false
+    var clouds = []
+    var objects = []
+
+    var start = false
+
+    var priceText
+    var price = 0.00025
+
+    var meters = 0
+    var death = false
+
+    function preload ()
+    {
+        this.load.setBaseURL('/images/');
+        this.load.image('space', './space.jpg');
+
+        this.load.image('bg1', './back.png');
+        this.load.image('bg2', './mid.png');
+        this.load.image('bg3', './front.png');
+
+        this.load.image('sky', './Sky.png');
+        this.load.image('Cloud_1', './Cloud_1.png');
+        this.load.image('Cloud_2', './Cloud_2.png');
+
+        this.load.image('flecha', './flecha.png');
+  
+        this.load.image('line', './line.jpg');
+
+        this.load.image('fuel', './fuel.png');
+
+        this.load.image('dogecube', './doge3.png');
+        this.load.image('doge3powah', './doge3powah.png');
+
+
+    }
+
+    function create ()
+    {
+        
+        resize()
+       
+        //var particles = this.add.particles('red');
+        //var emitter = particles.createEmitter({
+        //    speed: 100,
+        //    scale: { start: 1, end: 0 },
+        //    blendMode: 'ADD'
+        //});      
+
+        priceText = this.add.text(50, 50, "DGC/USD - "+price+"$", { fontFamily: "Arial Black", fontSize: 50, color: "#000000" });
+        priceText.setStroke('#FFFFFF', 10);
+        priceText.depth = 600
+
+        var containerDoge3 = this.add.container(0, 0);
+        var containerbg = this.add.container(0, 0);
+
+        doge3 = this.physics.add.image(1080/2,1920-1920/12, 'dogecube');
+        doge3.setCollideWorldBounds(true);
+        doge3.onWorldBounds = true;
+
+        sky = this.add.image(0,0, 'sky').setOrigin(0);
+
+
+        objects = this.add.group();
+
+
+        objects.add(this.physics.add.image(Phaser.Math.Between(0, config.width),0, 'fuel'));
+        var timer = this.time.addEvent({
+            delay: 1000,                // ms
+            callback: ()=>{ 
+                if(clouds.length < 8){
+                    clouds.push(this.add.image(Phaser.Math.Between(0, config.width),0, 'Cloud_1')) 
+                }else{
+                    //timer.remove();
+                }
+                
+                if(Math.random()>0.3)
+                    objects.add(this.physics.add.image(Phaser.Math.Between(0, config.width),0, 'fuel'));
+            },
+            loop: true
+        });
+
+
+        containerDoge3.add(doge3)
+        containerDoge3.depth = 500
+        this.bg1 =  this.add.image(0, 0, 'bg1').setOrigin(0);
+        this.bg2 =  this.add.image(0, 0, 'bg2').setOrigin(0);
+        this.bg3 =  this.add.image(0, 0, 'bg3').setOrigin(0);
+
+        this.line =  this.add.image(0, 0, 'line').setOrigin(0);
+        this.line2 =  this.add.image(1080-36, 0, 'line').setOrigin(0);
+
+        game.input.mousePointer.x;
+        game.input.mousePointer.y;
+
+        this.input.on('pointerdown', function (pointer)
+        {    
+            if(doge3.x != pointer.worldX || doge3.y != pointer.worldY){                
+                if(pointer.worldX > config.width/2){
+                    doge3.rotation +=0.3
+                    moveRight = true                   
+                }
+                else{
+                    doge3.rotation -=0.3
+                    moveLeft = true
+                }
+            }
+        }, this);
+
+
+        this.input.on('pointerup', function (pointer)
+        {  
+            moveRight = false;
+            moveLeft = false;
+            doge3.rotation =0
+        })
+
+        this.physics.add.overlap(doge3, objects, (sprite, object)=>{
+            VELOCITY += 5
+            objects.killAndHide(object);           
+        });
+       
+        setTimeout(()=>{start = true},5000)
+    }
+
+
+
+    function update (time, delta)
+    {     
+        //this.bg.tilePositionY -= VELOCITY;
+        
+        this.bg1.y += VELOCITY/5
+        this.bg2.y += VELOCITY/2
+        this.bg3.y += VELOCITY
+
+        clouds.forEach((cloud)=>{            
+                
+            if(cloud.y > config.height){
+                cloud.x = Phaser.Math.Between(0, config.width);
+                cloud.y = Phaser.Math.Between(-100, -5000);
+            }else{
+                cloud.y += VELOCITY    
+            }
+        })
+
+        objects.children.entries.forEach((object)=>{          
+                
+            if(object.y > config.height){                
+                object.destroy();
+            }else{
+                object.y += VELOCITY / 2   
+            }
+        })
+       
+
+        if(moveRight) doge3.x += VelocityX
+        if(moveLeft) doge3.x -= VelocityX
+        meters += VELOCITY; 
+        
+
+        price = Number((meters*0.000001 ).toFixed(4)); 
+        priceText.setText("DGC/USD - "+price+"$")
+        if(start && !death){        
+            if(VELOCITY >= 30)
+                VELOCITY-=0.5
+            else
+                VELOCITY-=0.1
+        }
+
+        if(VELOCITY < 0){
+            death = true
+            doge3.rotation = 180
+            VELOCITY -= 0.5
+        }
+        if(!death){
+            let popup = this.add.text(config.width/2, config.height/2, "DEAD COIN", { fontFamily: "Arial Black", fontSize: 50, color: "#000000" });
+            priceText.setStroke('#FFFFFF', 10);
+            priceText.depth = 600
+
+            showPopupPoints()
+        }   
+       
+    }
+
+
+    function showPopupPoints(){
+
+        
+
+
+    }
+
+    function resize() {
+        var canvas = game.canvas, width = window.innerWidth, height = window.innerHeight;
+        var wratio = width / height, ratio = canvas.width / canvas.height;
+        if (wratio < ratio) {
+            canvas.style.width = width + "px";
+            canvas.style.height = (width / ratio) + "px";
+        } else {
+            canvas.style.width = (height * ratio) + "px";
+            canvas.style.height = height + "px";
+        }
+    }
+
+    </script>
